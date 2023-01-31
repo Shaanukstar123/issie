@@ -53,7 +53,14 @@ let drawSymbolHook
         (symbol:Symbol) 
         (theme:ThemeType) 
         : ReactElement list option =
-    None
+    //DrawSymbol in SymbolView.fs
+    let line = {Stroke = "black color";StrokeWidth = "thin"; StrokeDashArray = "solid"}
+    let my_line = makeLine 100 100 100 100 line
+    let square = {Stroke = "black color"; StrokeWidth = "thin";FillOpacity = 100; Fill = "Yes"}
+    let door = makePolygon "10,10,10,10" square
+    let result = [my_line;door]
+    Some result
+    //None
 
 /// Return Some newWire to replace updateWire by your own code defined here.
 /// Choose which wires you control by returning None to use the
