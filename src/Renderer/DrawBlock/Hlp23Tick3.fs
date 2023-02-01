@@ -54,13 +54,25 @@ let drawSymbolHook
         (theme:ThemeType) 
         : ReactElement list option =
     //DrawSymbol in SymbolView.fs
-    let line = {Stroke = "black color";StrokeWidth = "thin"; StrokeDashArray = "solid"}
-    let my_line = makeLine 100 100 100 100 line
-    let square = {Stroke = "black color"; StrokeWidth = "thin";FillOpacity = 100; Fill = "Yes"}
-    let door = makePolygon "10,10,10,10" square
-    let result = [my_line;door]
-    Some result
-    //None
+    match symbol.Component.Type with
+    | Constant1 (windowsH, windowsV, _) ->
+        let pos = {X = 0; Y = 0} //position of outlines for house
+        let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
+        let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
+        let square = {Stroke = "black color"; StrokeWidth = "thin";FillOpacity = 100; Fill = "Yes"}
+        let door = makePolygon "100 500 600 700" square
+        let result = [
+            (makeLine pos.X pos.Y (pos.X) (pos.Y+200.0) line);
+            (makeLine pos.X pos.Y (pos.X+400.0) (pos.Y) line);
+            (makeLine pos.X (pos.Y+200.0) (pos.X+400.0) (pos.Y+200.0) line);
+            (makeLine (pos.X+400.0) pos.Y (pos.X+400.0) (pos.Y+200.0) line);
+            door
+            
+            ]
+
+        Some result
+    | _ -> printfn "Not Constant"
+           None
 
 /// Return Some newWire to replace updateWire by your own code defined here.
 /// Choose which wires you control by returning None to use the
