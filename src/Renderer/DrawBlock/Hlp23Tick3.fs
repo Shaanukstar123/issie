@@ -54,21 +54,35 @@ let drawSymbolHook
         (theme:ThemeType) 
         : ReactElement list option =
     //DrawSymbol in SymbolView.fs
+    let win_height = 50.0
+    let win_width = 40.0
+    let door_height = 70.0
+    let door_width = 30.0
+    let dist_from_edge_y = 20.0
+    let dist_from_edge_x = 20.0
+
+
     match symbol.Component.Type with
-    | Constant1 (windowsH, windowsV, _) ->
+    | Constant1 (windowsH, windowsV, _) ->    
         let pos = {X = 0; Y = 0} //position of outlines for house
         let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
-        let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
+        //let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
         let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
-        let door = makePolygon "0,100 0,0 80,0 80,100" square
+        let door = makePolygon "0,50 0,0 40,0 40,50" square
+
+        let create_windows num =
+            let seperation = 100.0*num + dist_from_edge_x
+            let new_pos = {X= seperation; Y = dist_from_edge_y}
+            let out = makePolygon $"{new_pos.X},{new_pos.Y+win_height} {new_pos.X},{(new_pos.Y)} {new_pos.X+win_width},{(new_pos.Y)} {new_pos.X+win_width},{(new_pos.Y+win_height)}" square
+            out
+        let index = windowsH-1
+        let win_horizontal = List.map(create_windows)[0..index]
+       
         let result = [
             (makeLine pos.X pos.Y (pos.X) (pos.Y+200.0) line);
             (makeLine pos.X pos.Y (pos.X+400.0) (pos.Y) line);
             (makeLine pos.X (pos.Y+200.0) (pos.X+400.0) (pos.Y+200.0) line);
-            (makeLine (pos.X+400.0) pos.Y (pos.X+400.0) (pos.Y+200.0) line);
-            door
-
-            ]
+            (makeLine (pos.X+400.0) pos.Y (pos.X+400.0) (pos.Y+200.0) line);]@win_horizontal
 
         Some result
     | _ -> printfn "Not Constant"
