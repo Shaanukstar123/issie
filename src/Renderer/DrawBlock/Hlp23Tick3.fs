@@ -54,35 +54,41 @@ let drawSymbolHook
         (theme:ThemeType) 
         : ReactElement list option =
     //DrawSymbol in SymbolView.fs
-    let win_height = 50.0
-    let win_width = 40.0
+    let winHeight = 50.0
+    let winWidth = 40.0
     let door_height = 70.0
     let door_width = 30.0
-    let dist_from_edge_y = 20.0
-    let dist_from_edge_x = 20.0
+
 
 
     match symbol.Component.Type with
-    | Constant1 (windowsH, windowsV, _) ->    
+    | Constant1 (windowsH, windowsV, _) ->
+        let houseWidth = float ((windowsH * int winWidth) + (int winWidth*(windowsH+1))) //(windows * size) + (separation*windows+1)
+        //let houseHeight =    
         let pos = {X = 0; Y = 0} //position of outlines for house
         let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
         //let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
         let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
         let door = makePolygon "0,50 0,0 40,0 40,50" square
 
-        let create_windows num =
-            let seperation = 100.0*num + dist_from_edge_x
-            let new_pos = {X= seperation; Y = dist_from_edge_y}
-            let out = makePolygon $"{new_pos.X},{new_pos.Y+win_height} {new_pos.X},{(new_pos.Y)} {new_pos.X+win_width},{(new_pos.Y)} {new_pos.X+win_width},{(new_pos.Y+win_height)}" square
+        let distFromEdgeY = 20.0
+        let distFromEdgeX = 20.0
+
+        let createWindows num =
+            let posX = 2.0*winWidth*num + winWidth
+            let newPos = {X= posX; Y = distFromEdgeY}
+            let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
             out
-        let index = windowsH-1
-        let win_horizontal = List.map(create_windows)[0..index]
+        let indexH = windowsH-1
+        let winHorizontal = List.map(createWindows)[0..indexH]
        
+        let edgeX2 = pos.X + houseWidth//pos.X+ distFromEdgeX + (winWidth* float windowsH) + ((100.0) * (float indexH))
+        let edgeY2 = pos.Y+200.0+(winHeight*float windowsV)
         let result = [
-            (makeLine pos.X pos.Y (pos.X) (pos.Y+200.0) line);
-            (makeLine pos.X pos.Y (pos.X+400.0) (pos.Y) line);
-            (makeLine pos.X (pos.Y+200.0) (pos.X+400.0) (pos.Y+200.0) line);
-            (makeLine (pos.X+400.0) pos.Y (pos.X+400.0) (pos.Y+200.0) line);]@win_horizontal
+            (makeLine pos.X pos.Y (pos.X) (edgeY2) line);
+            (makeLine pos.X pos.Y (edgeX2) (pos.Y) line);
+            (makeLine pos.X (edgeY2) (edgeX2) (edgeY2) line);
+            (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);]@winHorizontal
 
         Some result
     | _ -> printfn "Not Constant"
