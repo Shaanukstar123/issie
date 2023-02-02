@@ -56,20 +56,18 @@ let drawSymbolHook
     //DrawSymbol in SymbolView.fs
     let winHeight = 50.0
     let winWidth = 40.0
-    let door_height = 70.0
-    let door_width = 30.0
-
-
+    let door = (30.0,70.0)
 
     match symbol.Component.Type with
     | Constant1 (windowsH, windowsV, _) ->
-        let houseWidth = float ((windowsH * int winWidth) + (int winWidth*(windowsH+1))) //(windows * size) + (separation*windows+1)
-        //let houseHeight =    
+        let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
+        let houseHeight = ((snd door) + (float windowsV * winHeight)) + (float windowsV * (winWidth+1.0))   
         let pos = {X = 0; Y = 0} //position of outlines for house
         let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
         //let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
         let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
-        let door = makePolygon "0,50 0,0 40,0 40,50" square
+        let houseFrontX = houseWidth/2.0 - (fst door/2.0)
+        let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
 
         let distFromEdgeY = 20.0
         let distFromEdgeX = 20.0
@@ -82,13 +80,13 @@ let drawSymbolHook
         let indexH = windowsH-1
         let winHorizontal = List.map(createWindows)[0..indexH]
        
-        let edgeX2 = pos.X + houseWidth//pos.X+ distFromEdgeX + (winWidth* float windowsH) + ((100.0) * (float indexH))
-        let edgeY2 = pos.Y+200.0+(winHeight*float windowsV)
+        let edgeX2 = pos.X + houseWidth
+        let edgeY2 = pos.Y + houseHeight//200.0+(winHeight*float windowsV)
         let result = [
             (makeLine pos.X pos.Y (pos.X) (edgeY2) line);
             (makeLine pos.X pos.Y (edgeX2) (pos.Y) line);
             (makeLine pos.X (edgeY2) (edgeX2) (edgeY2) line);
-            (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);]@winHorizontal
+            (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);door]@winHorizontal
 
         Some result
     | _ -> printfn "Not Constant"
