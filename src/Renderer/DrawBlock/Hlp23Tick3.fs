@@ -59,15 +59,15 @@ let drawSymbolHook
         let pos = {X = 0; Y = 0} //position of outlines for house
         let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
         let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
-        let square = {Stroke = "black color"; StrokeWidth = "thin";FillOpacity = 100; Fill = "Yes"}
-        let door = makePolygon "100 500 600 700" square
+        let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
+        let door = makePolygon "0,100 0,0 80,0 80,100" square
         let result = [
             (makeLine pos.X pos.Y (pos.X) (pos.Y+200.0) line);
             (makeLine pos.X pos.Y (pos.X+400.0) (pos.Y) line);
             (makeLine pos.X (pos.Y+200.0) (pos.X+400.0) (pos.Y+200.0) line);
             (makeLine (pos.X+400.0) pos.Y (pos.X+400.0) (pos.Y+200.0) line);
             door
-            
+
             ]
 
         Some result
