@@ -60,35 +60,41 @@ let drawSymbolHook
 
     match symbol.Component.Type with
     | Constant1 (windowsH, windowsV, _) ->
-        let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
-        let houseHeight = ((snd door) + (float windowsV * winHeight)) + (float windowsV * (winWidth+1.0))   
-        let pos = {X = 0; Y = 0} //position of outlines for house
-        let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
-        //let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
-        let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
-        let houseFrontX = houseWidth/2.0 - (fst door/2.0)
-        let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
+        match windowsH,windowsV with
+        | _,_ when (windowsH<11) && (windowsH>0) && (int windowsV<4) && (windowsV>0) ->
+            let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
+            let houseHeight = ((snd door) + (float windowsV * winHeight)) + (float windowsV * (winWidth+1.0))   
+            let pos = {X = 0; Y = 0} //position of outlines for house
+            let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
+            //let my_line = makeLine pos.X pos.Y (pos.X+1000.0) (pos.Y+1000.0)  line
+            let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
+            let houseFrontX = houseWidth/2.0 - (fst door/2.0)
+            let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
 
-        let distFromEdgeY = 20.0
-        let distFromEdgeX = 20.0
 
-        let createWindows num =
-            let posX = 2.0*winWidth*num + winWidth
-            let newPos = {X= posX; Y = distFromEdgeY}
-            let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
-            out
-        let indexH = windowsH-1
-        let winHorizontal = List.map(createWindows)[0..indexH]
-       
-        let edgeX2 = pos.X + houseWidth
-        let edgeY2 = pos.Y + houseHeight//200.0+(winHeight*float windowsV)
-        let result = [
-            (makeLine pos.X pos.Y (pos.X) (edgeY2) line);
-            (makeLine pos.X pos.Y (edgeX2) (pos.Y) line);
-            (makeLine pos.X (edgeY2) (edgeX2) (edgeY2) line);
-            (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);door]@winHorizontal
+            let createWindows y x =
+                let posX = 2.0*winWidth*x + winWidth
+                let posY = winWidth + 2.0*winWidth*y
+                let newPos = {X= posX; Y = posY}
+                let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
+                out
+            let indexH = windowsH-1
+            let indexV = int windowsV-1
 
-        Some result
+            let windowsHorizontal y = List.map(createWindows y)[0..indexH]
+            let windowsTotal = List.concat (List.map(windowsHorizontal)[0..indexV])
+
+            let edgeX2 = pos.X + houseWidth
+            let edgeY2 = pos.Y + houseHeight//200.0+(winHeight*float windowsV)
+            let border = [
+                (makeLine pos.X pos.Y (pos.X) (edgeY2) line);
+                (makeLine pos.X pos.Y (edgeX2) (pos.Y) line);
+                (makeLine pos.X (edgeY2) (edgeX2) (edgeY2) line);
+                (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);door]
+            let result  = border@windowsTotal
+
+            Some result
+        | _ -> None
     | _ -> printfn "Not Constant"
            None
 
