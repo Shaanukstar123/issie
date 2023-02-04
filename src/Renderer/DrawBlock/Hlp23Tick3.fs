@@ -61,23 +61,27 @@ let drawSymbolHook
 
     match symbol.Component.Type with
     | Constant1 (windowsH, windowsV, _) ->
+    
         match windowsH,windowsV with
         | _,_ when (windowsH<11) && (windowsH>0) && (int windowsV<4) && (windowsV>0) ->
             let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
-            let houseHeight = ((snd door) + (float windowsV * winHeight)) + (float windowsV * (winWidth+1.0))   
+            let houseHeight = ((snd door) + (float windowsV * winHeight)) + ((float windowsV * (winHeight+1.0)))   
             let pos = {X = 0; Y = 0} //position of outlines for house
             let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
             let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
             let houseFrontX = houseWidth/2.0 - (fst door/2.0)
-            let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
+            let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} 
+                       {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
 
 
             let createWindows y x =
                 let posX = 2.0*winWidth*x + winWidth
                 let posY = winWidth + 2.0*winWidth*y
                 let newPos = {X= posX; Y = posY}
-                let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
+                let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)}
+                          {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
                 out
+
             let indexH = windowsH-1
             let indexV = int windowsV-1
 
