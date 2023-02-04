@@ -116,7 +116,18 @@ let updateWireHook
         (routeInputEnd:bool) 
         (tick3Helpers: Tick3BusWireHelpers)
         : Wire option =
+
+    let segmentData = 
+        wire.Segments
+        |> List.map(fun (seg:Segment) -> seg.Length)
+    //printfn "Line: %A" segmentData
+
+    printfn "Something!!!!"
     None
+
+    //let BusWireUpdateHelpers.moveSegment model 
+
+    
 
 //---------------------------------------------------------------------//
 //-------included here because it will be used in project work---------//
