@@ -125,9 +125,8 @@ let updateWireHook
 
     let changeLength i seg = 
         match i with
-        |2 -> {seg with Length = seg.Length*0.25}
-
-        |4 -> {seg with Length = (seg.Length + (0.75*wire.Segments[2].Length))}
+        |2 -> {seg with Length = (seg.Length+wire.Segments[4].Length)*0.25}
+        |4 -> {seg with Length = ((seg.Length + wire.Segments[2].Length)*0.75)}
         |_ -> seg
 
     let updatedSeg = 
