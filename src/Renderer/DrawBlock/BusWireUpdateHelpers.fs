@@ -337,7 +337,7 @@ let coalesceInWire (wId: ConnectionId) (model:Model) =
     Optic.set (wireOf_ wId >-> segments_) newSegments model
 
 
-/// Returns a wwireOf_aining the updated list of segments after a segment is moved by 
+/// Returns a wire containing the updated list of segments after a segment is moved by 
 /// a specified distance. The moved segment is tagged as manual so that it is no longer auto-routed.
 /// Throws an error if the index of the segment being moved is not a valid movable segment index.
 let moveSegment (model:Model) (seg:Segment) (distance:float) = 
@@ -611,6 +611,13 @@ let reverseWire (wire: Wire) =
 /// Reverse indicates if the wire should be processed in reverse, 
 /// used when an input port (end of wire) is moved.
 let updateWire (model : Model) (wire : Wire) (reverse : bool) =
+    let tick3Helpers: Hlp23Tick3.Tick3BusWireHelpers = 
+        {
+            AutoRoute = autoroute
+            ReverseWire = reverseWire
+            MoveSegment = moveSegment
+        }
+
     let newPort = 
         match reverse with
         | true -> Symbol.getInputPortLocation None model.Symbol wire.InputPort
@@ -621,6 +628,10 @@ let updateWire (model : Model) (wire : Wire) (reverse : bool) =
     else 
         partialAutoroute model wire newPort false
     |> Option.defaultValue (autoroute model wire)
+    |> (fun wire ->
+        Hlp23Tick3.updateWireHook model wire tick3Helpers
+        |> Option.defaultValue  wire)
+
 
 //--------------------------------------------------------------------------------//
 
