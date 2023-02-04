@@ -116,13 +116,24 @@ let updateWireHook
         (wire: Wire) 
         (tick3Helpers: Tick3BusWireHelpers)
         : Wire option =
+
     let segmentInfo =
         wire.Segments
         |> List.map (fun (seg:Segment) -> seg.Length,seg.Mode)
-    printfn "%s" $"Wire: Initial Orientation={wire.InitialOrientation}\nSegments={segmentInfo}"
-    None
 
-    //let BusWireUpdateHelpers.moveSegment model 
+    printfn "%s" $"Wire: Initial Orientation={wire.InitialOrientation}\nSegments={segmentInfo}"
+
+    let changeLength i seg = 
+        match i with
+        |2 -> {seg with Length = seg.Length*0.25}
+
+        |4 -> {seg with Length = (seg.Length + (0.75*wire.Segments[2].Length))}
+        |_ -> seg
+
+    let updatedSeg = 
+        List.mapi(changeLength) wire.Segments
+    let newWire = {wire with Segments = updatedSeg}
+    Some newWire
 
     
 
