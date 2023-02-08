@@ -64,22 +64,29 @@ let drawSymbolHook
     
         match windowsH,windowsV with
         | _,_ when (windowsH<11) && (windowsH>0) && (int windowsV<4) && (windowsV>0) ->
+
+            let makeSquare coords size = 
+                let (x1,y1,x2,y2,x3,y3,x4,y4) = coords
+                makePolygon  $"{x1},{y1} {x2},{y2} 
+                       {x3},{y3} {x4},{y4}" {Stroke = "Black"; StrokeWidth = size;FillOpacity = 100; Fill = "None"}
+
             let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
             let houseHeight = ((snd door) + (float windowsV * winHeight)) + ((float windowsV * (winHeight+1.0)))   
             let pos = {X = 0; Y = 0} //position of outlines for house
-            let line = {Stroke = "Black";StrokeWidth = "4px"; StrokeDashArray = "None"}
-            let square = {Stroke = "Black"; StrokeWidth = "2px";FillOpacity = 100; Fill = "None"}
+            let square size  = {Stroke = "Black"; StrokeWidth = size;FillOpacity = 100; Fill = "None"}
             let houseFrontX = houseWidth/2.0 - (fst door/2.0)
-            let door = makePolygon $"{houseFrontX},{houseHeight - snd door} {houseFrontX},{houseHeight} 
-                       {houseFrontX+fst door},{houseHeight} {houseFrontX+fst door},{houseHeight - snd door}" square
+            //new function call:
+            let door = makeSquare (houseFrontX, houseHeight - snd door, houseFrontX, houseHeight, 
+                                   houseFrontX+fst door, houseHeight, houseFrontX+fst door,houseHeight - snd door) "2px"
 
 
             let createWindows y x =
                 let posX = 2.0*winWidth*x + winWidth
                 let posY = winWidth + 2.0*winWidth*y
                 let newPos = {X= posX; Y = posY}
+                //old version:
                 let out = makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{(newPos.Y)}
-                          {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" square
+                          {newPos.X+winWidth},{(newPos.Y)} {newPos.X+winWidth},{(newPos.Y+winHeight)}" (square "2px")
                 out
 
             let indexH = windowsH-1
@@ -91,10 +98,9 @@ let drawSymbolHook
             let edgeX2 = pos.X + houseWidth
             let edgeY2 = pos.Y + houseHeight
             let border = [
-                (makeLine pos.X pos.Y (pos.X) (edgeY2) line);
-                (makeLine pos.X pos.Y (edgeX2) (pos.Y) line);
-                (makeLine pos.X (edgeY2) (edgeX2) (edgeY2) line);
-                (makeLine (edgeX2) pos.Y (edgeX2) (edgeY2) line);door]
+                makePolygon $"{pos.X},{pos.Y} {pos.X},{edgeY2}
+                              {edgeX2},{edgeY2} {edgeX2},{pos.Y}"
+                              (square "4px");door]
             let result  = border@windowsTotal
 
             Some result
