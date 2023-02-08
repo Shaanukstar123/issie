@@ -55,10 +55,15 @@ let drawSymbolHook
         (theme:ThemeType) 
         : ReactElement list option =
     //DrawSymbol in SymbolView.fs
-    let winHeight = 50.0
-    let winWidth = 40.0
+
     let winDims = (40.0,50.0)
     let doorDims = (30.0,-70.0)
+    
+    let makeRect pos dims size =
+                let (x,y) = pos
+                let (width, height) = dims
+                makePolygon  $"{x},{y+height} {x},{y} 
+                       {x+width},{y} {x+width},{y+height}" {Stroke = "Black"; StrokeWidth = size;FillOpacity = 100; Fill = "None"}
 
     match symbol.Component.Type with
     | Constant1 (windowsH, windowsV, _) ->
@@ -66,46 +71,24 @@ let drawSymbolHook
         match windowsH,windowsV with
         | _,_ when (windowsH<11) && (windowsH>0) && (int windowsV<4) && (windowsV>0) ->
 
-            let makeRect pos dims size =
-                let (x,y) = pos
-                let (width, height) = dims
-                makePolygon  $"{x},{y+height} {x},{y} 
-                       {x+width},{y} {x+width},{y+height}" {Stroke = "Black"; StrokeWidth = size;FillOpacity = 100; Fill = "None"}
-
-            let houseWidth = float ((2*windowsH * int winWidth)) + winWidth
-            let houseHeight = ( (float windowsV * winHeight)) + ((float windowsV * (winHeight+1.0)) - (snd doorDims))   
+            let houseDims = ((float ((2*windowsH * int (fst winDims))) + (fst winDims)),
+                            ( (float windowsV * (snd winDims))) + ((float windowsV * ((snd winDims)+1.0)) - (snd doorDims)))      
             let pos = {X = 0; Y = 0} //position of outlines for house
-            let square size  = {Stroke = "Black"; StrokeWidth = size;FillOpacity = 100; Fill = "None"}
-            let houseFrontX = houseWidth/2.0 - (fst doorDims/2.0)
-            let door = makeRect (houseFrontX,houseHeight) doorDims "2px"
-            //makeSquare (houseFrontX, houseHeight - snd door, houseFrontX, houseHeight, 
-                                   //houseFrontX+fst door, houseHeight, houseFrontX+fst door,houseHeight - snd door) "2px"
-
+            let houseFrontX = (fst houseDims)/2.0 - (fst doorDims/2.0)
+            let door = makeRect (houseFrontX,(snd houseDims)) doorDims "2px"
 
             let createWindows y x =
-                let posX = 2.0*winWidth*x + winWidth
-                let posY = winWidth + 2.0*winWidth*y
-                let newPos = {X= posX; Y = posY}
-                let out = makeRect (posX, posY) winDims "2px"
-                           //makePolygon $"{newPos.X},{newPos.Y+winHeight} {newPos.X},{newPos.Y}
-                          //{newPos.X+winWidth},{newPos.Y} {newPos.X+winWidth},{newPos.Y+winHeight}" (square "2px")
-                out
+                let posX = 2.0*(fst winDims)*x + (fst winDims)
+                let posY = (fst winDims) + 2.0*(fst winDims)*y
+                makeRect (posX, posY) winDims "2px"
 
             let indexH = windowsH-1
             let indexV = int windowsV-1
 
             let windowsHorizontal y = List.map(createWindows y)[0..indexH]
             let windowsTotal = List.concat (List.map(windowsHorizontal)[0..indexV])
-
-            let edgeX2 = pos.X + houseWidth
-            let edgeY2 = pos.Y + houseHeight
-            let border = makeRect (pos.X,pos.Y) (houseWidth,houseHeight) "4px"
-                // makePolygon $"{pos.X},{pos.Y} {pos.X},{edgeY2}
-                //               {edgeX2},{edgeY2} {edgeX2},{pos.Y}"
-                //               (square "4px");door]
-            
+            let border = makeRect (pos.X,pos.Y) houseDims "4px"
             let result  = [border;door]@windowsTotal
-
             Some result
         | _ -> None
     | _ -> None
@@ -146,8 +129,6 @@ let updateWireHook
         List.mapi(changeLength) wire.Segments
     let newWire = {wire with Segments = updatedSeg}
     Some newWire
-
-    
 
 //---------------------------------------------------------------------//
 //-------included here because it will be used in project work---------//
